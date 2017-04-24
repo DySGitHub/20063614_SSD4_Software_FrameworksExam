@@ -105,20 +105,6 @@ describe DataAccess do
        end        
     end
 
-     # NEW TESTS
-    
-    #For 'Existing book' transactions, only the ISBN and quantity properties of the book parameter are relevant.
-#It passes the book parameter to a method (with the same name) of SQLitePersistence. SQLitePersistence determines the transaction type (New book or Existing book) and performs the relevant database operation (insert or update). SQLitePersistence* returns 0 for 'New book' transactions and 1 for 'Existing book' transactions.
-#For simplicity, the local cache has been ignored in this feature.
-#The return value from SQLitePersistence allows DataAccess#updateStock() to determine whether it needs to perform any Memcached operations, according to the logic of the following diagram:
-    
-#Question 1 (Mock Objects).
-
-#You are required to use the RSpec framework to unit test the updateStock() method of DataAccess, using mocks to replace its dependencies. #An outline solution is available in test/unit/rspec_data_access.rb, which you must complete.
-
-#Notes:
-
-#In src/sqlite_persistence.rb an updateStock() method has been added. Assume this is already fully tested.
     
     describe '#updateStock' do
 
@@ -127,22 +113,19 @@ describe DataAccess do
      
   expect(@sqlite_database).to receive(:updateStock).with(@book1).
                    and_return(0)
-            result = @data_access.updateStock(@book1) 
-            expect(result).to eql 0
+            result = @data_access.updateStock(@book1)
+              expect(result).to eql(0)  
        end 
         end
         
-        #aaaa
-        
-            context "book is existing" do
-          context "when it is not in the remote cache" do
-             it "it should leave the remote cache unchanged" do
-               expect(@sqlite_database).to receive(:updateStock).with(@book1).
-                     and_return(1)
+        context "adding to stock of existing book on stock" do
+        context "when it is not in the remote cache" do
+             it "should leave the remote cache unchanged" do
+               expect(@sqlite_database).to receive(:updateStock).with(@book1).and_return(1)
                expect(@dalli_client).to receive(:get).with("v_#{@book1.isbn}").
-                   and_return(1)
+                   and_return(nil)
                result = @data_access.updateStock(@book1) 
-               expect(result).to eql @book1
+             expect(result).to eql(1)                 
              end
           end
     end  
